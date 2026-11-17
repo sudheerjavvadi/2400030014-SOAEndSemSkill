@@ -1,0 +1,7 @@
+spring.application.name=gateway
+
+#Port Number
+server.port=8001
+
+#Eureka Server URL
+eureka.client.service-url.defaultZone=http://localhost:9000/eureka

@@ -1,0 +1,39 @@
+package soa.services;
+
+import java.util.List;
+
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+@Service
+public class GatewayService {
+
+  DiscoveryClient DC;
+  
+  int current = 0;
+  
+  public GatewayService(DiscoveryClient DC)
+  {
+    this.DC = DC;
+  }
+  
+  public Object invokeService(String serviceName, String operation, int a, int b)
+  {
+    List<ServiceInstance> services = DC.getInstances(serviceName);
+    if(services.isEmpty())
+      throw new RuntimeException("No services found");
+    
+    ServiceInstance instance = services.get(current);
+    
+    current = (current + 1) % services.size();
+    
+    String url = instance.getUri() + "/api/" + operation + "/" + a + "/" + b;
+    
+    RestClient client = RestClient.create();
+    
+    return client.get().uri(url).retrieve().body(String.class);
+  }
+  
+}
